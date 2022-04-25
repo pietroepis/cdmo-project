@@ -4,7 +4,7 @@ from PlotMap import PlotMap
 filename = "ins-1.txt"
 
 model = Model("./model.mzn")
-gecode = Solver.lookup("gecode")
+gecode = Solver.lookup("chuffed")
 instance = Instance(gecode, model)
 
 f = open("../instances/" + filename, "r")
