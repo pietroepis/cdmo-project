@@ -1,7 +1,7 @@
 from minizinc import Instance, Model, Solver
 from PlotMap import PlotMap
 
-filename = "ins-1.txt"
+filename = "ins-11.txt"
 
 model = Model("./model.mzn")
 gecode = Solver.lookup("chuffed")
