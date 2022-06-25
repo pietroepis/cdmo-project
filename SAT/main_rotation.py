@@ -44,9 +44,11 @@ input = f.read().splitlines()
 
 n = int(input[1])
 dimensions = [tuple(map(int, input[i + 2].split(" "))) for i in range(n)]
+rotated_dimensions = [(d2, d1) for (d1, d2) in dimensions]
 width = int(input[0])
 max_height = sum([dim[1] for dim in dimensions])
 height = [Bool(f"h_{i}") for i in range(max_height)]
+rotated = [Bool(f"r_{i}") for i in range(n)]
 
 # s = Solver()
 s = Optimize()
@@ -58,24 +60,31 @@ for i in range(max_height):
     for j in range(width):
         s.add(at_most_one(map[i][j]))
 
-# Position the rectangles
-for k in range(n):
+def pippo(d):
     possible_plates = []
 
-    for i in range(max_height - dimensions[k][0] + 1):
-        for j in range(width - dimensions[k][1] + 1):
+    for i in range(max_height - d[0] + 1):
+        for j in range(width - d[1] + 1):
             ands = []
 
             for oy in range(max_height):
                 for ox in range(width):
-                    if i <= oy < i + dimensions[k][0] and j <= ox < j + dimensions[k][1]:
+                    if i <= oy < i + d[0] and j <= ox < j + d[1]:
                         ands.append(map[oy][ox][k])
                     else:
                         ands.append(Not(map[oy][ox][k]))
 
             possible_plates.append(And(ands))
+
+    return possible_plates
+
+# Position the rectangles
+for k in range(n):
+    possible_plates = pippo(dimensions[k])
+    possible_plates_rotated = pippo(rotated_dimensions[k])
             
-    s.add(at_least_one(possible_plates))
+    s.add(Implies(Not(rotated[k]), at_least_one(possible_plates)))
+    s.add(Implies(rotated[k], at_least_one(possible_plates_rotated)))
 
 # At least one rectangle for each depth layer
 for k in range(n):
@@ -104,6 +113,7 @@ while True:
 print(solution_found)
 
 print(model)
+print(sorted([(d, model[d]) for d in model], key = lambda x: str(x[0])))
 display_solution(model, length_sol + 1)
 
 """ if s.check() == sat:
