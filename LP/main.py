@@ -1,7 +1,7 @@
 from minizinc import Instance, Model, Solver
 from PlotMap import PlotMap
 
-filename = "ins-40.txt"
+filename = "ins-9.txt"
 allow_rotation = False
 
 model = Model("./model_rotation.mzn" if allow_rotation else "./model.mzn")
