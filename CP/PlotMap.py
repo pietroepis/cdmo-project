@@ -9,7 +9,7 @@ class PlotMap:
         self.__positions = positions
         self.__dimensions = dimensions
 
-    def plot(self):
+    def plot(self, savepath):
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
         ax.grid(color = (0.7, 0.7, 0.7), linestyle = "--", linewidth = 1)
@@ -27,4 +27,7 @@ class PlotMap:
         plt.xlim([0, self.__width])
         plt.ylim([0, self.__height])
         
-        plt.show()
+        if savepath != None:
+            plt.savefig(savepath)
+        else:
+            plt.show()

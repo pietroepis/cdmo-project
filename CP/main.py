@@ -1,14 +1,18 @@
 from minizinc import Instance, Model, Solver
 from PlotMap import PlotMap
+import sys
+import os
 
-filename = "ins-40.txt"
+path = os.path.abspath(os.path.dirname(__file__))
+
+filename = "ins-" + (str(sys.argv[1]) if len(sys.argv) != 0 else "1") + ".txt"
 allow_rotation = False
 
 model = Model("./model_rotation.mzn" if allow_rotation else "./model.mzn")
 gecode = Solver.lookup("chuffed")
 instance = Instance(gecode, model)
 
-f = open("../instances/" + filename, "r")
+f = open(os.path.join(path, "..\\instances\\" + filename), "r")
 input = f.read().splitlines()
 instance["width"] = int(input[0])
 instance["n"] = int(input[1])
@@ -25,7 +29,7 @@ for i in range(int(input[1])):
 print("Result:")
 print(result_out)
 
-f = open("../outputs/" + filename, "w")
+f = open(os.path.join(path, "..\\outputs\\CP\\") + filename, "w")
 f.write(result_out)
 f.close()
 
@@ -35,4 +39,4 @@ pm = PlotMap(
     result["positions"],
     dimensions
 )
-pm.plot()
+pm.plot(savepath = os.path.join(path, "..\\images\\CP\\ins-" + str(sys.argv[1]) + ".png"))
