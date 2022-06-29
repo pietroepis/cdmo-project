@@ -9,7 +9,7 @@ class PlotMap:
         self.__positions = positions
         self.__dimensions = dimensions
 
-    def plot(self, savepath):
+    def plot(self, savepath = None):
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
         ax.grid(color = (0.7, 0.7, 0.7), linestyle = "--", linewidth = 1)
