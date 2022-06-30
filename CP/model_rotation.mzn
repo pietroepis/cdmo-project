@@ -21,8 +21,8 @@ constraint height >= min_height /\ height <= max_height;
 
 % positions bounds
 constraint forall(i in 1..n)(
-  positions[i, 1] >= 0 /\ positions[i, 1] < width /\
-  positions[i, 2] >= 0 /\ positions[i, 2] < height
+  positions[i, 1] >= 0 /\ positions[i, 1] <= width - actual_dimensions[i, 1] /\
+  positions[i, 2] >= 0 /\ positions[i, 2] <= height - actual_dimensions[i, 2]
 );
 
 % no overlap

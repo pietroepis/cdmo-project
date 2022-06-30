@@ -17,10 +17,10 @@ array[0..(width - 1), 0..(max_height - 1)] of var (1..n+1): map;  % n+1 because 
 % plate size bounds (IMPLIED)
 constraint height >= min_height /\ height <= max_height;
 
-% positions bounds
+% positions & overflow bounds
 constraint forall(i in 1..n)(
-  positions[i, 1] >= 0 /\ positions[i, 1] < width /\
-  positions[i, 2] >= 0 /\ positions[i, 2] < height
+  positions[i, 1] >= 0 /\ positions[i, 1] <= width - dimensions[i, 1] /\
+  positions[i, 2] >= 0 /\ positions[i, 2] <= height - dimensions[i, 2]
 );
 
 % no overlap
@@ -28,9 +28,6 @@ constraint cumulative([positions[i, 2] | i in 1..n], [dimensions[i, 2] | i in 1.
 constraint cumulative([positions[i, 1] | i in 1..n], [dimensions[i, 1] | i in 1..n], [dimensions[i, 2] | i in 1..n], height);
 constraint diffn([positions[i, 1] | i in 1..n], [positions[i, 2] | i in 1..n],
   [dimensions[i, 1] | i in 1..n], [dimensions[i, 2] | i in 1..n]);
-
-% no overflow
-constraint forall(i in 1..n)(positions[i, 1] + dimensions[i, 1] <= width);
 
 % height definition
 constraint height = max([positions[i, 2] + dimensions[i, 2] | i in 1..n]);
@@ -52,6 +49,6 @@ constraint all_different([positions[i, 1] * 10 + positions[i, 2] | i in 1..n]);
 
 % solve minimize height;
 solve :: seq_search([
-  int_search([positions[i, 1] | i in 1..n], input_order, indomain_min, complete), 
-  int_search([positions[i, 2] | i in 1..n], input_order, indomain_min, complete)
+  int_search([positions[i, 1] | i in 1..n], dom_w_deg, indomain_min, complete), 
+  int_search([positions[i, 2] | i in 1..n], dom_w_deg, indomain_min, complete)
 ]) minimize height;
