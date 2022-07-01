@@ -2,6 +2,7 @@ from minizinc import Instance, Model, Solver
 from PlotMap import PlotMap
 import sys
 import os
+from datetime import timedelta
 
 path = os.path.abspath(os.path.dirname(__file__))
 
@@ -17,7 +18,7 @@ input = f.read().splitlines()
 instance["width"] = int(input[0])
 instance["n"] = int(input[1])
 instance["dimensions"] = [tuple(map(int, input[i + 2].split(" "))) for i in range(instance["n"])]
-result = instance.solve()
+result = instance.solve(timeout=timedelta(seconds=301))
 
 dimensions = instance["dimensions"] if not allow_rotation else result["actual_dimensions"]
 
