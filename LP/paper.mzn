@@ -2,11 +2,11 @@ int: width;
 int: n;
 array[1..n, 1..2] of int: dimensions;
 int: m = 5;
+array[1..n] of 1..m: E;
 0..1: allow_rotation =  0;
-
 int: domain_limit = 1000000;
+int: M = domain_limit;
 
-var int: M;
 var int: height;
 array[1..n] of var 0..domain_limit: xbl;
 array[1..n] of var 0..domain_limit: xbr;
@@ -20,7 +20,6 @@ array[1..m, 1..2] of var 0..domain_limit: bb_dimensions;
 array[1..n, 1..n] of var 0..1: r;
 array[1..n, 1..n] of var 0..1: u;
 array[1..n] of var 0..1: v;
-array[1..n] of var 1..m: E;
 array[1..n, 1..2] of var 0..domain_limit: actual_dimensions;
 
 var int: objective_function;
@@ -31,17 +30,13 @@ constraint objective_function = sum(k in 1..m)(
   bb_dimensions[k, 1] + bb_dimensions[k, 2]
 ) + width * height;
 
-constraint forall(i in 1..n)(
-  E[i] = 
-);
-
 % Constraints 1-4
 constraint forall(k in 1..m)(
   forall(i in 1..n where E[i] = k)(
-    xbl_bb[k] <= 0.5 * (xbl[i] + xbr[i]) /\
-    xbr_bb[k] >= 0.5 * (xbl[i] + xbr[i]) /\
-    ybb_bb[k] <= 0.5 * (ybb[i] + ybt[i]) /\
-    ybt_bb[k] >= 0.5 * (ybb[i] + ybt[i])
+    2 * xbl_bb[k] <= (xbl[i] + xbr[i]) /\
+    2 * xbr_bb[k] >= (xbl[i] + xbr[i]) /\
+    2 * ybb_bb[k] <= (ybb[i] + ybt[i]) /\
+    2 * ybt_bb[k] >= (ybb[i] + ybt[i])
   )
 );
 
@@ -54,7 +49,7 @@ constraint forall(k in 1..m)(
 % Constraints 7-8
 constraint forall(i in 1..n)(
   xbr[i] - xbl[i] = actual_dimensions[i, 1] /\
-  ybb[i] - ybt_bb[i] = actual_dimensions[i, 2]
+  ybb[i] - ybt[i] = actual_dimensions[i, 2]
 );
 
 % Rotation

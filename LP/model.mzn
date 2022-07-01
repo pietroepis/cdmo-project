@@ -14,8 +14,11 @@ var int: M;
 var int: height;
 array[1..n, 1..2] of var int: positions;
 array[1..n, 1..n, 1..4] of var 0..1: delta;
+var int: objective_function;
 
 constraint M = max_height + width;
+
+constraint objective_function = height * width;
 
 % plate size bounds
 constraint height >= min_height;
@@ -26,31 +29,25 @@ constraint forall(i in 1..n)(
   positions[i, 1] >= 0
 );
 constraint forall(i in 1..n)(
-  positions[i, 1] < width - dimensions[i, 1]
+  positions[i, 1] <= width - dimensions[i, 1]
 );
 constraint forall(i in 1..n)(
   positions[i, 2] >= 0
 );
 constraint forall(i in 1..n)(
-  positions[i, 2] < height - dimensions[i, 2]
+  positions[i, 2] <= height - dimensions[i, 2]
 );
 
 % no overlap
 constraint forall(i in 1..n)(
-  sum(j in 1..n)(
-    if positions[j, 2] <= dimensions[i, 2] /\ dimensions[i, 2] < positions[j, 2] + dimensions[j, 2] 
-    then dimensions[j, 1] 
-    else 0 
-    endif
+  sum(j in 1..n where positions[j, 2] <= dimensions[i, 2] /\ dimensions[i, 2] < positions[j, 2] + dimensions[j, 2])(
+    dimensions[j, 1] 
   ) <= width
 );
 
 constraint forall(i in 1..n)(
-  sum(j in 1..n)(
-    if positions[j, 1] <= dimensions[i, 1] /\ dimensions[i, 1] < positions[j, 1] + dimensions[j, 1] 
-    then dimensions[j, 2] 
-    else 0 
-    endif
+  sum(j in 1..n where positions[j, 1] <= dimensions[i, 1] /\ dimensions[i, 1] < positions[j, 1] + dimensions[j, 1])(
+    dimensions[j, 2]
   ) <= height
 );
 
@@ -76,6 +73,8 @@ constraint forall(i in 1..n)(
 constraint forall(i in 1..n)(positions[i, 1] + dimensions[i, 1] <= width);
 
 % height definition
-constraint height = max([positions[i, 2] + dimensions[i, 2] | i in 1..n]);
+constraint forall(i in 1..n)(
+  height >= positions[i, 2] + dimensions[i, 2]
+);
 
-solve minimize height;
+solve minimize objective_function;

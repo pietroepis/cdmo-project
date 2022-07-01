@@ -28,13 +28,13 @@ constraint forall(i in 1..n)(
   positions[i, 1] >= 0
 );
 constraint forall(i in 1..n)(
-  positions[i, 1] < width - actual_dimensions[i, 1]
+  positions[i, 1] <= width - actual_dimensions[i, 1]
 );
 constraint forall(i in 1..n)(
   positions[i, 2] >= 0
 );
 constraint forall(i in 1..n)(
-  positions[i, 2] < height - actual_dimensions[i, 2]
+  positions[i, 2] <= height - actual_dimensions[i, 2]
 );
 
 % no overlap
