@@ -6,7 +6,7 @@ from datetime import timedelta
 
 path = os.path.abspath(os.path.dirname(__file__))
 
-filename = "ins-" + (str(sys.argv[1]) if len(sys.argv) == 2 else "2") + ".txt"
+filename = "ins-" + (str(sys.argv[1]) if len(sys.argv) == 2 else "1") + ".txt"
 allow_rotation = False
 
 model = Model("./model_rotation.mzn" if allow_rotation else "./model.mzn")

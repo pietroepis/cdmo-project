@@ -17,12 +17,14 @@ class PlotMap:
         palette = sns.color_palette("hls", len(self.__positions))
 
         for i in range(len(self.__positions)):
-            ax.add_patch(Rectangle(
+            r = Rectangle(
                 (self.__positions[i][0], self.__positions[i][1]),
                 self.__dimensions[i][0], 
                 self.__dimensions[i][1],
-                color = palette[i])
+                color = palette[i]
             )
+            ax.add_patch(r)
+            ax.annotate(str(i), (self.__positions[i][0] + 0.1, self.__positions[i][1] + 0.1), color='w', weight='bold', fontsize=8)
 
         plt.xlim([0, self.__width])
         plt.ylim([0, self.__height])
