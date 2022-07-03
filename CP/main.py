@@ -6,7 +6,7 @@ from datetime import timedelta
 
 path = os.path.abspath(os.path.dirname(__file__))
 
-filename = "ins-" + (str(sys.argv[1]) if len(sys.argv) == 2 else "1") + ".txt"
+filename = "ins-" + (str(sys.argv[1]) if len(sys.argv) == 2 else "18") + ".txt"
 allow_rotation = False
 
 model = Model("./model_rotation.mzn" if allow_rotation else "./model.mzn")
@@ -25,7 +25,7 @@ dimensions = instance["dimensions"] if not allow_rotation else result["actual_di
 result_out = input[0] + " " + str(result["height"]) + "\n" + input[1] + "\n"
 for i in range(int(input[1])):
     result_out += (str(dimensions[i][0]) + " " + str(dimensions[i][1]) + " " +
-        str(result["positions"][i][0]) + " " + str(result["positions"][i][1]) + "\n")
+        str(result["positions_x"][i]) + " " + str(result["positions_y"][i]) + "\n")
 
 print("Result:")
 print(result_out)
@@ -37,7 +37,7 @@ f.close()
 pm = PlotMap(
     int(input[0]),
     result["height"],
-    result["positions"],
+    [(result["positions_x"][i], result["positions_y"][i]) for i in range(len(result["positions_x"]))],
     dimensions
 )
 
