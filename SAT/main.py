@@ -2,6 +2,7 @@ from itertools import combinations
 from z3 import *
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 def at_most_one(bool_vars):
     return [Not(And(pair[0], pair[1])) for pair in combinations(bool_vars, 2)]
@@ -42,56 +43,71 @@ filename = "ins-3.txt"
 f = open("../instances/" + filename, "r")
 input = f.read().splitlines()
 
+ALLOW_ROTATION = True
 n = int(input[1])
 dimensions = [tuple(map(int, input[i + 2].split(" "))) for i in range(n)]
+rotated_dimensions = [(d2, d1) for (d1, d2) in dimensions]
 width = int(input[0])
+min_height = math.floor(sum([dim[0] * dim[1] for dim in dimensions]) / width) - 1
 max_height = sum([dim[1] for dim in dimensions])
-height = [Bool(f"h_{i}") for i in range(max_height)]
+height = [Bool(f"h_{i}") for i in range(min_height, max_height + 1)]
+rotated = [Bool(f"r_{i}") for i in range(n)]
 
-# s = Solver()
-s = Optimize()
-
-map = [[[Bool(f"x_{i}_{j}_{k}") for k in range(n)] for j in range(width)] for i in range(max_height)]
-
-# No overlapping
-for i in range(max_height):
-    for j in range(width):
-        s.add(at_most_one(map[i][j]))
-
-# Position the rectangles
-for k in range(n):
+def possible_positions(d):
     possible_plates = []
 
-    for i in range(max_height - dimensions[k][0] + 1):
-        for j in range(width - dimensions[k][1] + 1):
+    for i in range(max_height - d[1] + 1):
+        for j in range(width - d[0] + 1):
             ands = []
 
             for oy in range(max_height):
                 for ox in range(width):
-                    if i <= oy < i + dimensions[k][0] and j <= ox < j + dimensions[k][1]:
+                    if i <= oy < i + d[1] and j <= ox < j + d[0]:
                         ands.append(map[oy][ox][k])
                     else:
                         ands.append(Not(map[oy][ox][k]))
 
             possible_plates.append(And(ands))
-            
-    s.add(at_least_one(possible_plates))
+
+    return possible_plates
+
+# s = Solver()
+s = Optimize()
+
+map = [[[Bool(f"x_{i}_{j}_{k}") for k in range(n)] for j in range(width)] for i in range(max_height + 1)]
+
+# No overlapping
+for i in range(max_height + 1):
+    for j in range(width):
+        s.add(at_most_one(map[i][j]))
+
+# Position the rectangles
+for k in range(n):
+    possible_plates = possible_positions(dimensions[k])
+    if ALLOW_ROTATION:
+        possible_plates_rotated = possible_positions(rotated_dimensions[k])
+        s.add(Implies(Not(rotated[k]), at_least_one(possible_plates)))
+        s.add(Implies(rotated[k], at_least_one(possible_plates_rotated)))
+    else:
+        s.add(at_least_one(possible_plates))
+
+if not ALLOW_ROTATION:
+    s.add(Not(Or(rotated)))
 
 # At least one rectangle for each depth layer
 for k in range(n):
     s.add(at_least_one(flatten(map[:][:][k])))
 
 # Bind height and map
-s.add(exactly_one([height[i] for i in range(max_height)]))
-# s.add(And([Implies(Or(flatten(map[i])), height[i]) for i in range(max_height)]))
-s.add([height[i] == And([Or(flatten(map[i]))] + [Not(Or(flatten(map[j]))) for j in range(i + 1, max_height)])
-    for i in range(max_height)])
+s.add(exactly_one([height[i] for i in range(0, max_height - min_height + 1)]))
+s.add([height[i] == And([Or(flatten(map[i + min_height]))] + [Not(Or(flatten(map[j + min_height]))) for j in range(i + 1, max_height - min_height + 1)])
+    for i in range(0, max_height - min_height + 1)])
 
 while True:
     if s.check() == sat:
 
         model = s.model()
-        for k in range(max_height):
+        for k in range(max_height - min_height + 1):
             if model.evaluate(height[k]):
                 length_sol = k
 
@@ -104,12 +120,4 @@ while True:
 print(solution_found)
 
 print(model)
-display_solution(model, length_sol + 1)
-
-""" if s.check() == sat:
-    m = s.model()
-    print(m)
-    display_solution(m, max_height)
-    print(sorted([(d, m[d]) for d in m], key = lambda x: str(x[0])))
-else:
-    print("Failed to solve") """
+display_solution(model, length_sol + min_height + 1)

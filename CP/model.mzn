@@ -32,29 +32,16 @@ constraint diffn([positions_x[i] | i in 1..n], [positions_y[i] | i in 1..n],
 % height definition
 constraint height = max([positions_y[i] + dimensions[i, 2] | i in 1..n]);
 
-
-
-
 % symmetry breaking
-% constraint symmetry_breaking_constraint(
-%   lex_lesseq([positions_x[k] | k in 1..n], [width - positions_x[k] - dimensions[k, 1] | k in 1..n])
-% );
-
 constraint symmetry_breaking_constraint(
-    lex_lesseq(positions_x, reverse(positions_x))
+  lex_lesseq([positions_x[k] | k in 1..n], [width - positions_x[k] - dimensions[k, 1] | k in 1..n])
 );
-     
-     
-     
-     
-     
-    
+      
 % IMPLIED
 constraint all_different([positions_x[i] * 10 + positions_y[i] | i in 1..n])::domain;
 
 % SEARCH
 int: search_heuristic = 1;
-int: restart_strategy = 1;
 
 ann: search_ann_xhat =
 if search_heuristic == 1 then
@@ -74,16 +61,6 @@ else
   int_search(positions_y, input_order, indomain_min)
 endif;
 
-ann: restart_ann =
-if restart_strategy == 1 then
-  restart_luby(150)
-elseif restart_strategy == 2 then
-  restart_geometric(2, 50)
-else
-  restart_none
-endif;
-
 solve :: search_ann_xhat
       :: search_ann_yhat
-      :: restart_ann
          minimize height;
