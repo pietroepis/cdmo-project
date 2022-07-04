@@ -9,10 +9,12 @@ int: n;
 array[1..n, 1..2] of int: dimensions;
 int: max_height = sum(i in 1..n)(dimensions[i, 2]);
 int: min_height = floor(sum(i in 1..n)(dimensions[i, 1] * dimensions[i, 2]) / width);
+array[1..n] of int: order = sort_by([j | j in 1..n], [-dimensions[i, 1] * dimensions[i, 2] | i in 1..n]);
 
 var 1..max_height: height;
 array[1..n] of var 0..(width - min([dimensions[i, 1] | i in 1..n]) + 1): positions_x;
 array[1..n] of var 0..(max_height - min([dimensions[i, 2] | i in 1..n]) + 1): positions_y;
+
 
 % plate size bounds (IMPLIED)
 constraint height >= min_height /\ height <= max_height;
@@ -36,6 +38,10 @@ constraint height = max([positions_y[i] + dimensions[i, 2] | i in 1..n]);
 constraint symmetry_breaking_constraint(
   lex_lesseq([positions_x[k] | k in 1..n], [width - positions_x[k] - dimensions[k, 1] | k in 1..n])
 );
+
+constraint
+  let {int: o1 = order[1], int: o2 = order[2]}
+  in lex_less([positions_y[o1], positions_x[o1]], [positions_y[o2], positions_x[o2]]);	
       
 % IMPLIED
 constraint all_different([positions_x[i] * 10 + positions_y[i] | i in 1..n])::domain;
