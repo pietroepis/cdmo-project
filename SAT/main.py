@@ -16,6 +16,11 @@ def exactly_one(bool_vars):
 def flatten(xss):
     return [x for xs in xss for x in xs]
 
+def lex_lesseq(x, y):
+    return And([Implies(x[0], y[0])] +
+        [Implies(And([x[i] == y[i] for i in range(k)]), Implies(x[k], y[k]))
+        for k in range(1, len(x))])
+
 def display_solution(model, h):
     print("SUCCESS")
     print("h: " + str(h))
@@ -43,7 +48,7 @@ filename = "ins-3.txt"
 f = open("../instances/" + filename, "r")
 input = f.read().splitlines()
 
-ALLOW_ROTATION = True
+ALLOW_ROTATION = False
 n = int(input[1])
 dimensions = [tuple(map(int, input[i + 2].split(" "))) for i in range(n)]
 rotated_dimensions = [(d2, d1) for (d1, d2) in dimensions]
@@ -71,7 +76,6 @@ def possible_positions(d):
 
     return possible_plates
 
-# s = Solver()
 s = Optimize()
 
 map = [[[Bool(f"x_{i}_{j}_{k}") for k in range(n)] for j in range(width)] for i in range(max_height + 1)]

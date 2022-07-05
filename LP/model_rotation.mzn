@@ -9,15 +9,13 @@ int: n;
 array[1..n, 1..2] of int: dimensions;
 int: max_height = sum(i in 1..n)(dimensions[i, 2]);
 int: min_height = floor(sum(i in 1..n)(dimensions[i, 1] * dimensions[i, 2]) / width);
+int: M = max_height + width;
 
-var int: M;
 var int: height;
 array[1..n, 1..2] of var int: positions;
 array[1..n, 1..n, 1..4] of var 0..1: delta;
 array[1..n] of var bool: rotated;
 array[1..n, 1..2] of var 0..30: actual_dimensions;
-
-constraint M = max_height + width;
 
 % plate size bounds
 constraint height >= min_height;
