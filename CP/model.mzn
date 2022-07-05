@@ -1,9 +1,5 @@
 include "globals.mzn";
 
-% int: width = 19;
-% int: n = 14;
-% array[1..n, 1..2] of int: dimensions = [| 3, 3 | 3, 4 | 3, 5 | 3, 6 | 3, 7 | 3, 8 | 3, 9 | 3, 10 | 3, 11 | 3, 13 | 3, 19 | 4, 5 | 4, 6 | 4, 8 |];
-
 int: width;
 int: n;
 array[1..n, 1..2] of int: dimensions;
@@ -35,16 +31,21 @@ constraint diffn([positions_x[i] | i in 1..n], [positions_y[i] | i in 1..n],
 constraint height = max([positions_y[i] + dimensions[i, 2] | i in 1..n]);
 
 % symmetry breaking
-constraint symmetry_breaking_constraint(
-  lex_lesseq([positions_x[k] | k in 1..n], [width - positions_x[k] - dimensions[k, 1] | k in 1..n])
-);
+% constraint symmetry_breaking_constraint(
+%   lex_lesseq([positions_x[k] | k in 1..n], [width - positions_x[k] - dimensions[k, 1] | k in 1..n])
+% );
 
-constraint
-  let {int: o1 = order[1], int: o2 = order[2]}
-  in lex_less([positions_y[o1], positions_x[o1]], [positions_y[o2], positions_x[o2]]);	
+constraint symmetry_breaking_constraint(
+  lex_less([positions_y[order[1]], positions_x[order[1]]], [positions_y[order[2]], positions_x[order[2]]])
+);	
+  
+% constraint symmetry_breaking_constraint(
+%   sum(i in 1..n where positions_x[i] <= width div 2)(dimensions[i, 1] * dimensions[i, 2]) >= 
+%   sum(i in 1..n where positions_x[i] > width div 2)(dimensions[i, 1] * dimensions[i, 2])
+% );
       
 % IMPLIED
-constraint all_different([positions_x[i] * 10 + positions_y[i] | i in 1..n])::domain;
+% constraint all_different([positions_x[i] * 10 + positions_y[i] | i in 1..n])::domain;
 
 % SEARCH
 int: search_heuristic = 1;
@@ -67,6 +68,8 @@ else
   int_search(positions_y, input_order, indomain_min)
 endif;
 
-solve :: search_ann_xhat
-      :: search_ann_yhat
-         minimize height;
+solve :: seq_search([
+    int_search(positions_y, first_fail, indomain_min),
+    int_search(positions_x, first_fail, indomain_min),
+    int_search([height], smallest, indomain_min)])
+    minimize height;
