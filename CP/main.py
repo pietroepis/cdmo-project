@@ -10,8 +10,8 @@ filename = "ins-" + (str(sys.argv[1]) if len(sys.argv) == 2 else "1") + ".txt"
 allow_rotation = False
 
 model = Model("./model_rotation.mzn" if allow_rotation else "./model.mzn")
-solver = Solver.lookup("gecode")
-# solver = Solver.lookup("chuffed")
+# solver = Solver.lookup("gecode")
+solver = Solver.lookup("chuffed")
 instance = Instance(solver, model)
 
 f = open(os.path.join(path, "..\\instances\\" + filename), "r")

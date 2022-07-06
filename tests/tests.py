@@ -12,7 +12,7 @@ def print_progress(current, tot, instance):
         print(" ", end="")
     print("] " + str(current + 1) + "/" + str(tot) + " (instance " + str(instance) + ")", end = "")
 
-INSTANCE_FROM = 11
+INSTANCE_FROM = 1
 INSTANCE_TO = 20
 METHOD = "CP"
 
