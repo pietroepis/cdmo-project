@@ -30,7 +30,7 @@ constraint symmetry_breaking_constraint(
   )
 );	
   
-% % rows and columns symmetry
+% rows and columns symmetry
 constraint symmetry_breaking_constraint(
 	forall (i,j in 1..n where i < j)(
 		(
@@ -48,7 +48,7 @@ constraint symmetry_breaking_constraint(
 	)
 );
 
-% % three blocks symmetry
+% three blocks symmetry
 constraint symmetry_breaking_constraint(
 	forall (i,j,k in 1..n where i > j /\ j > k)(
 		(
@@ -69,9 +69,6 @@ constraint symmetry_breaking_constraint(
     ) -> positions_y[k] <= positions_y[i] 
 	)
 );
-      
-% IMPLIED
-% constraint all_different([positions_x[i] * 10 + positions_y[i] | i in 1..n])::domain;
 
 % SEARCH
 solve :: seq_search([

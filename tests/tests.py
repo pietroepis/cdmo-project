@@ -32,4 +32,4 @@ for i in range(INSTANCE_FROM, INSTANCE_TO + 1, 2):
 
     print_progress(i - INSTANCE_FROM, (INSTANCE_TO - INSTANCE_FROM + 1), i)
 
-f.close()    
+f.close()

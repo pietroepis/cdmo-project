@@ -6,7 +6,7 @@ from datetime import timedelta
 
 path = os.path.abspath(os.path.dirname(__file__))
 
-filename = "ins-" + (str(sys.argv[1]) if len(sys.argv) == 2 else "30") + ".txt"
+filename = "ins-" + (str(sys.argv[1]) if len(sys.argv) == 2 else "5") + ".txt"
 allow_rotation = False
 
 model = Model("./model_rotation.mzn" if allow_rotation else "./model.mzn")
@@ -25,7 +25,7 @@ instance["h"] = [tuple(map(int, input[i + 2].split(" ")))[1] for i in range(inst
 result = instance.solve(timeout=timedelta(seconds=301))
 # result = instance.solve()
 
-dimensions = list(zip(instance["w"], instance["h"])) if not allow_rotation else result["actual_dimensions"]
+dimensions = list(zip(instance["w"], instance["h"])) if not allow_rotation else list(zip(result["actual_w"], result["actual_h"]))
 
 result_out = input[0] + " " + str(result["height"]) + "\n" + input[1] + "\n"
 for i in range(int(input[1])):

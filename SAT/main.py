@@ -44,9 +44,10 @@ def display_solution(model, h):
     plt.tight_layout()
     plt.show()
 
-filename = "ins-3.txt"
+filename = "ins-5.txt"
 f = open("../instances/" + filename, "r")
 input = f.read().splitlines()
+input[2:] = sorted(input[2:], key = lambda item: int(item.split(" ")[0]) * int(item.split(" ")[1]), reverse = True)
 
 ALLOW_ROTATION = False
 n = int(input[1])
@@ -106,6 +107,9 @@ for k in range(n):
 s.add(exactly_one([height[i] for i in range(0, max_height - min_height + 1)]))
 s.add([height[i] == And([Or(flatten(map[i + min_height]))] + [Not(Or(flatten(map[j + min_height]))) for j in range(i + 1, max_height - min_height + 1)])
     for i in range(0, max_height - min_height + 1)])
+
+# Simmetry Breaking Constraints
+s.add(lex_lesseq(flatten(map[:][:][0]), flatten(map[:][:][1])))
 
 while True:
     if s.check() == sat:

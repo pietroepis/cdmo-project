@@ -1,63 +1,91 @@
 include "globals.mzn";
 
-% int: width = 19;
-% int: n = 14;
-% array[1..n, 1..2] of int: dimensions = [| 3, 3 | 3, 4 | 3, 5 | 3, 6 | 3, 7 | 3, 8 | 3, 9 | 3, 10 | 3, 11 | 3, 13 | 3, 19 | 4, 5 | 4, 6 | 4, 8 |];
 int: width;
 int: n;
-array[1..n, 1..2] of int: dimensions;
+array[1..n] of int: w;
+array[1..n] of int: h;
+int: max_height = sum(h);
+int: min_height = floor(sum(i in 1..n)(w[i] * h[i]) / width);
 
-int: max_height = sum(i in 1..n)(dimensions[i, 2]);
-int: min_height = floor(sum(i in 1..n)(dimensions[i, 1] * dimensions[i, 2]) / width);
-
-var int: height;
-array[1..n, 1..2] of var int: positions;
-array[0..(width - 1), 0..(max_height - 1)] of var (1..n+1): map;  % n+1 because of the empty cells
+var min_height..max_height: height;
+array[1..n] of var 0..(width - min(w) + 1): positions_x;
+array[1..n] of var 0..(max_height - min(h) + 1): positions_y;
+array[1..n] of var 0..30: actual_w;
+array[1..n] of var 0..30: actual_h;
 array[1..n] of var bool: rotated;
-array[1..n, 1..2] of var 0..30: actual_dimensions;
 
-% plate size bounds (IMPLIED)
-constraint height >= min_height /\ height <= max_height;
-
-% positions bounds
-constraint forall(i in 1..n)(
-  positions[i, 1] >= 0 /\ positions[i, 1] <= width - actual_dimensions[i, 1] /\
-  positions[i, 2] >= 0 /\ positions[i, 2] <= height - actual_dimensions[i, 2]
-);
+% positions & overflow bounds
+constraint forall(i in 1..n)(positions_x[i] <= width - actual_w[i] /\ positions_y[i] <= height - actual_h[i]);
 
 % no overlap
-constraint cumulative([positions[i, 2] | i in 1..n], [actual_dimensions[i, 2] | i in 1..n], [actual_dimensions[i, 1] | i in 1..n], width);
-constraint cumulative([positions[i, 1] | i in 1..n], [actual_dimensions[i, 1] | i in 1..n], [actual_dimensions[i, 2] | i in 1..n], height);
-constraint diffn([positions[i, 1] | i in 1..n], [positions[i, 2] | i in 1..n],
-  [actual_dimensions[i, 1] | i in 1..n], [actual_dimensions[i, 2] | i in 1..n]);
-
-% no overflow
-constraint forall(i in 1..n)(positions[i, 1] + actual_dimensions[i, 1] <= width);
+constraint cumulative(positions_y, actual_h, actual_w, width)::domain;
+constraint cumulative(positions_x, actual_w, actual_h, height)::domain;
+constraint diffn(positions_x, positions_y, actual_w, actual_h)::domain;
 
 % height definition
-constraint height = max([positions[i, 2] + actual_dimensions[i, 2] | i in 1..n]);
+constraint height = max([positions_y[i] + actual_h[i] | i in 1..n]);
 
 % symmetry breaking
 constraint symmetry_breaking_constraint(
-  lex_lesseq(array1d(map), [ map[i,j] | j in 0..max_height-1, i in reverse(0..width-1)]) /\ 
-  lex_lesseq(array1d(map),[ map[i,j] | j in reverse(0..max_height-1), i in 0..width-1]) /\ 
-  lex_lesseq(array1d(map), [ map[i,j] | j in reverse(0..max_height-1), i in reverse(0..width-1)]));
-
+  lex_less(
+  	[positions_y[1], positions_x[1]], 
+  	[positions_y[2], positions_x[2]]
+  )
+);	
   
-% channeling
-constraint forall(i in 0..(width - 1), j in 0..(max_height - 1), k in 1..n)
-  (map[i, j] == k <-> (positions[k, 1] <= i /\ i < positions[k, 1] + actual_dimensions[k, 1] /\
-    positions[k, 2] <= j /\ j < positions[k, 2] + actual_dimensions[k, 2]));
-    
-% IMPLIED
-constraint all_different([positions[i, 1] * 10 + positions[i, 2] | i in 1..n]);
+% rows and columns symmetry
+constraint symmetry_breaking_constraint(
+	forall (i,j in 1..n where i < j)(
+		(
+			positions_x[i] == positions_x[j] /\ 
+			actual_w[i] == actual_w[j]
+		) -> positions_y[i] <= positions_y[j]
+	)
+);
+constraint symmetry_breaking_constraint(
+	forall (i,j in 1..n where i < j)(
+		(
+			positions_y[i] == positions_y[j] /\ 
+    	actual_h[i] == actual_h[j]
+		) -> positions_x[i] <= positions_x[j]
+	)
+);
+
+% three blocks symmetry
+constraint symmetry_breaking_constraint(
+	forall (i,j,k in 1..n where i > j /\ j > k)(
+		(
+			positions_x[i] == positions_x[j] /\ 
+			actual_w[i] == actual_w[j] /\ 
+			positions_y[i] == positions_y[k] /\ 
+			actual_h[i] + actual_h[j] == actual_h[k]
+		) -> positions_x[k] <= positions_x[i]
+	)
+);
+constraint symmetry_breaking_constraint(
+	forall (i,j,k in 1..n where i > j /\ j > k)(
+    (
+    	positions_y[i] == positions_y[j] /\ 
+    	actual_h[i] == actual_h[j] /\ 
+    	positions_x[i] == positions_x[k] /\ 
+    	actual_w[i] + actual_w[j] == actual_w[k]
+    ) -> positions_y[k] <= positions_y[i] 
+	)
+);
 
 % rotation
 constraint forall(i in 1..n)(
-  actual_dimensions[i, 1] = (if rotated[i] then dimensions[i, 2] else dimensions[i, 1] endif)
+  actual_w[i] = (if rotated[i] then h[i] else w[i] endif)
 );
 constraint forall(i in 1..n)(
-  actual_dimensions[i, 2] = (if rotated[i] then dimensions[i, 1] else dimensions[i, 2] endif)
+  actual_h[i] = (if rotated[i] then w[i] else h[i] endif)
 );
 
-solve minimize height;
+% SEARCH
+solve :: seq_search([
+    int_search(positions_y, first_fail, indomain_min),
+    int_search(positions_x, first_fail, indomain_min),
+    int_search([height], smallest, indomain_min)])
+    :: restart_geometric(2, 50)
+    minimize height;
+
