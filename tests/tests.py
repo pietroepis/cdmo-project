@@ -13,7 +13,7 @@ def print_progress(current, tot, instance):
     print("] " + str(current + 1) + "/" + str(tot) + " (instance " + str(instance) + ")", end = "")
 
 INSTANCE_FROM = 1
-INSTANCE_TO = 20
+INSTANCE_TO = 40
 METHOD = "CP"
 
 f = open("cdmo-project/tests/times/times_" + str(INSTANCE_FROM) + "_" + str(INSTANCE_TO) + "_" + METHOD + ".csv", "w")
@@ -23,7 +23,7 @@ os.chdir("cdmo-project/" + METHOD)
 
 print_progress(0, (INSTANCE_TO - INSTANCE_FROM + 1), INSTANCE_FROM)
 
-for i in range(INSTANCE_FROM, INSTANCE_TO + 1):
+for i in range(INSTANCE_FROM, INSTANCE_TO + 1, 2):
     start_time = time.time()
 
     p = subprocess.call(["python", "main.py", str(i)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
