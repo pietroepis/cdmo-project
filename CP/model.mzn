@@ -72,9 +72,8 @@ constraint symmetry_breaking_constraint(
 
 % SEARCH
 solve :: seq_search([
-    int_search(positions_y, dom_w_deg, indomain_min),
-    int_search(positions_x, dom_w_deg, indomain_min),
+    int_search(positions_y, first_fail, indomain_min),
+    int_search(positions_x, first_fail, indomain_min),
     int_search([height], smallest, indomain_min)])
-    :: restart_geometric(2, 50)
     minimize height;
 

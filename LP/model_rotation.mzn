@@ -1,9 +1,5 @@
 include "globals.mzn";
 
-% int: width = 19;
-% int: n = 14;
-% array[1..n, 1..2] of int: dimensions = [| 3, 3 | 3, 4 | 3, 5 | 3, 6 | 3, 7 | 3, 8 | 3, 9 | 3, 10 | 3, 11 | 3, 13 | 3, 19 | 4, 5 | 4, 6 | 4, 8 |];
-
 int: width;
 int: n;
 array[1..n, 1..2] of int: dimensions;

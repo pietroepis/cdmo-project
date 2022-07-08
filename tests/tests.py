@@ -23,7 +23,7 @@ os.chdir("cdmo-project/" + METHOD)
 
 print_progress(0, (INSTANCE_TO - INSTANCE_FROM + 1), INSTANCE_FROM)
 
-for i in range(INSTANCE_FROM, INSTANCE_TO + 1, 2):
+for i in range(INSTANCE_FROM, INSTANCE_TO + 1):
     start_time = time.time()
 
     p = subprocess.call(["python", "main.py", str(i)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

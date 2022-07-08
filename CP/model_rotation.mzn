@@ -6,12 +6,14 @@ array[1..n] of int: w;
 array[1..n] of int: h;
 int: max_height = sum(h);
 int: min_height = floor(sum(i in 1..n)(w[i] * h[i]) / width);
+int: max_dim = max([max(w), max(h)]);
+int: min_dim = min([min(w), min(h)]);
 
 var min_height..max_height: height;
 array[1..n] of var 0..(width - min(w) + 1): positions_x;
 array[1..n] of var 0..(max_height - min(h) + 1): positions_y;
-array[1..n] of var 0..30: actual_w;
-array[1..n] of var 0..30: actual_h;
+array[1..n] of var min_dim..max_dim: actual_w;
+array[1..n] of var min_dim..max_dim: actual_h;
 array[1..n] of var bool: rotated;
 
 % positions & overflow bounds
@@ -80,6 +82,7 @@ constraint forall(i in 1..n)(
 constraint forall(i in 1..n)(
   actual_h[i] = (if rotated[i] then w[i] else h[i] endif)
 );
+constraint forall(i in 1..n where w[i] = h[i])(rotated[i] = false);
 
 % SEARCH
 solve :: seq_search([
