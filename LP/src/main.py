@@ -5,8 +5,8 @@ filename = "ins-1.txt"
 allow_rotation = False
 
 model = Model("./model_rotation.mzn" if allow_rotation else "./model.mzn")
-gecode = Solver.lookup("chuffed")
-instance = Instance(gecode, model)
+solver = Solver.lookup("chuffed")
+instance = Instance(solver, model)
 
 f = open("../../instances/" + filename, "r")
 input = f.read().splitlines()
