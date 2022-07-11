@@ -76,4 +76,3 @@ solve :: seq_search([
     int_search(positions_x, first_fail, indomain_min),
     int_search([height], smallest, indomain_min)])
     minimize height;
-

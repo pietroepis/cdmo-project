@@ -25,7 +25,6 @@ def lex_lesseq(x, y):
         for k in range(1, len(x))])
 
 def display_solution(model, h):
-    print("SUCCESS")
     print("h: " + str(h))
 
     grid = np.zeros((h, width))

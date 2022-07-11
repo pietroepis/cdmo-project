@@ -10,6 +10,7 @@ instance = Instance(solver, model)
 
 f = open("../../instances/" + filename, "r")
 input = f.read().splitlines()
+input[2:] = sorted(input[2:], key = lambda item: int(item.split(" ")[0]) * int(item.split(" ")[1]), reverse = True)
 instance["width"] = int(input[0])
 instance["n"] = int(input[1])
 instance["dimensions"] = [tuple(map(int, input[i + 2].split(" "))) for i in range(instance["n"])]

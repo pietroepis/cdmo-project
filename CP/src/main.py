@@ -6,11 +6,10 @@ from datetime import timedelta
 
 path = os.path.abspath(os.path.dirname(__file__))
 
-filename = "ins-3.txt"
+filename = "ins-1.txt"
 allow_rotation = True
 
 model = Model("./model_rotation.mzn" if allow_rotation else "./model.mzn")
-# solver = Solver.lookup("gecode")
 solver = Solver.lookup("chuffed")
 instance = Instance(solver, model)
 
@@ -22,8 +21,7 @@ instance["n"] = int(input[1])
 instance["w"] = [tuple(map(int, input[i + 2].split(" ")))[0] for i in range(instance["n"])]
 instance["h"] = [tuple(map(int, input[i + 2].split(" ")))[1] for i in range(instance["n"])]
 
-result = instance.solve(timeout=timedelta(seconds=301))
-# result = instance.solve()
+result = instance.solve()
 
 dimensions = list(zip(instance["w"], instance["h"])) if not allow_rotation else list(zip(result["actual_w"], result["actual_h"]))
 

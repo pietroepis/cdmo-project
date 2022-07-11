@@ -91,4 +91,3 @@ solve :: seq_search([
     int_search([height], smallest, indomain_min)])
     :: restart_geometric(2, 50)
     minimize height;
-
